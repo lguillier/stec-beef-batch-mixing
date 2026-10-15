@@ -24,6 +24,10 @@ README.md
 data/
   generate_vph_contamination.R   R script generating the contamination of VPH boxes
   vph_contamination.csv          example output (50,000 boxes)
+R/
+  mix_vph_batches.R              mixing of VPH boxes into batches, Figures 13 to 15
+figures/                         figures produced by R/mix_vph_batches.R
+output/                          summary.csv (batches.csv is regenerated, not versioned)
 docs/
   index.html                     entry page for the explainers
   vph-box-filling.html           step 1: from 60 carcasses to one VPH box
@@ -59,6 +63,29 @@ source("data/generate_vph_contamination.R")
 
 All three types share the same upstream contamination distribution; the type labels only prepare the boxes for the mixing step. In this example the median expected count is about 31 CFU per box, the 90th percentile about 1,700 and the 99th percentile about 105,000, and 4,503 boxes (9%) have an integer count of 0.
 
+## Mixing VPH boxes into batches (in development)
+
+[`R/mix_vph_batches.R`](R/mix_vph_batches.R) mixes the boxes of `data/vph_contamination.csv` into minced beef batches following the scenario of Section 3.4.6 (Figure 12) and reproduces Figures 13 to 15 of the opinion:
+
+- each 1,000 kg batch takes 600 kg of chilled fatty, 300 kg of chilled lean and 100 kg of frozen VPH, boxes being used first in, first out until empty (a fatty box feeds about 1.7 batches, a lean box 3.3, a frozen box 10); the 30,000 / 15,000 / 5,000 boxes of the file give 50,000 batches;
+- a box's bacteria are shared between the batches it feeds in proportion to the mass taken (binomial split of the integer counts by default, or proportional split of the expected numbers with `split_mode <- "expected"`);
+- 1/1000 of each batch's bacteria stays in the mixer and goes into the next batch;
+- each batch is tested once (n = 1, absence in 25 g); the probability of detection is 1 − (b / (μ′ + b))^b (Equation 7), with μ′ the mean count in 25 g and the heterogeneity coefficient b drawn uniformly in [0.5, 2] for each batch.
+
+```sh
+Rscript R/mix_vph_batches.R   # from the repository root; needs dplyr and ggplot2
+```
+
+Outputs: `output/batches.csv` (one row per batch: bacteria, boxes used, b, probability of detection, result; not versioned, about 6 MB), `output/summary.csv` and three figures:
+
+| Figure | Content |
+|---|---|
+| [`figures/fig13_batch_contamination.png`](figures/fig13_batch_contamination.png) | log10 bacteria in the first 150 batches, red when detected (Figure 13 of the opinion) |
+| [`figures/fig14_detection_probability.png`](figures/fig14_detection_probability.png) | probability of detection of the same batches (Figure 14) |
+| [`figures/fig15_cdf_neighbours.png`](figures/fig15_cdf_neighbours.png) | cumulative distributions of contamination for detected batches, the batches just before and after them, and batches 5 away (Figure 15) |
+
+With the example data, 4.9% of batches are detected (2.7% in the opinion), the mean probability of detecting the neighbouring batches with 30 samples is 72% (66% in the opinion), and the median contamination of detected batches is about 200 times that of batches 5 away (about 100 times in the opinion).
+
 ## Scope
 
 The code focuses on:
@@ -68,7 +95,7 @@ The code focuses on:
 - Formation of batches by combining several raw material units.
 - Resulting contamination patterns across production batches.
 
-This repository covers this component of the model rather than the complete quantitative microbial risk assessment described in the opinion. The data script does not include mixing, sampling, carry-over or risk assessment.
+This repository covers this component of the model rather than the complete quantitative microbial risk assessment described in the opinion. The data script does not include mixing, sampling or carry-over; these are in `R/mix_vph_batches.R`. Risk assessment is not covered.
 
 ## Scientific background
 
