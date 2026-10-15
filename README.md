@@ -15,6 +15,19 @@ Start here to see the principles before reading the code. Both pages are self-co
 
 [`docs/index.html`](docs/index.html) links the two pages in order.
 
+### Rebuilding the explainers
+
+The pages are generated from small JavaScript sources, so the drawings and numbers come from the same model code. With Node.js 20 or later and no other dependency:
+
+```sh
+node figure-vph/build.mjs   # writes docs/vph-box-filling.html
+node figure/build.mjs       # writes docs/batch-mixing.html
+```
+
+- `figure-vph/model.mjs` ports the piece-generation step of `data/generate_vph_contamination.R` (reference piece count, Poisson pieces per carcass, triangular masses, surface ratio, expected bacteria per piece); `live.js` draws and animates the box.
+- `figure/model.mjs` holds the allocation of units to batches (60/30/10, first in first out, 0.1% carry-over) and the contamination levels it implies; `scene.mjs` draws the line.
+- `vendor/anatomy/` is a copy of the isometric drawing kit of the [anatomy](https://github.com/wheresryan22/anatomy) project (MIT licence), used by both builds.
+
 The pages are simplified visualizations. The contaminated-carcass loads, and the two contaminated carcasses per box shown by default in the first page, are demonstration settings; the number of contaminated carcasses per box in the R model comes from its own prevalence equations.
 
 ## Repository structure
@@ -28,6 +41,9 @@ docs/
   index.html                     entry page for the explainers
   vph-box-filling.html           step 1: from 60 carcasses to one VPH box
   batch-mixing.html              step 2: VPH boxes into eight successive batches
+figure-vph/                      sources of docs/vph-box-filling.html
+figure/                          sources of docs/batch-mixing.html (preview/ has screenshots)
+vendor/anatomy/                  isometric drawing kit used by the builds (MIT)
 ```
 
 ## Data: contamination of VPH boxes
