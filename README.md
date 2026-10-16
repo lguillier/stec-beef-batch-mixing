@@ -77,7 +77,7 @@ All three types share the same upstream contamination distribution; the type lab
 
 ```sh
 Rscript R/mix_vph_batches.R                                 # defaults: 1,000 kg batches, b = 1
-Rscript R/mix_vph_batches.R batch_kg=500 b=1.3              # other batch mass and b
+Rscript R/mix_vph_batches.R batch_kg=500 b=2                # other batch mass and b (example only)
 Rscript R/mix_vph_batches.R b_mode=uniform b_min=0.5 b_max=2   # b drawn per batch
 ```
 

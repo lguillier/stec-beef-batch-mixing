@@ -23,7 +23,7 @@
 #
 # Run from the repository root:  Rscript R/mix_vph_batches.R
 # Parameters can be changed below or on the command line, for example:
-#   Rscript R/mix_vph_batches.R batch_kg=500 b=1.3
+#   Rscript R/mix_vph_batches.R batch_kg=500 b=2      (default: batch_kg=1000, b=1)
 #   Rscript R/mix_vph_batches.R b_mode=uniform b_min=0.5 b_max=2
 # Install once if needed: install.packages(c("dplyr", "ggplot2"))
 
