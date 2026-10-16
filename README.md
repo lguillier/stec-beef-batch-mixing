@@ -27,7 +27,7 @@ data/
 R/
   mix_vph_batches.R              mixing of VPH boxes into batches, Figures 13 to 15
 figures/                         figures produced by R/mix_vph_batches.R
-output/                          summary.csv (batches.csv is regenerated, not versioned)
+output/                          summary.csv, balance.csv (batches.csv is regenerated, not versioned)
 docs/
   index.html                     entry page for the explainers
   vph-box-filling.html           step 1: from 60 carcasses to one VPH box
@@ -67,16 +67,23 @@ All three types share the same upstream contamination distribution; the type lab
 
 [`R/mix_vph_batches.R`](R/mix_vph_batches.R) mixes the boxes of `data/vph_contamination.csv` into minced beef batches following the scenario of Section 3.4.6 (Figure 12) and reproduces Figures 13 to 15 of the opinion:
 
-- each 1,000 kg batch takes 600 kg of chilled fatty, 300 kg of chilled lean and 100 kg of frozen VPH, boxes being used first in, first out until empty (a fatty box feeds about 1.7 batches, a lean box 3.3, a frozen box 10); the 30,000 / 15,000 / 5,000 boxes of the file give 50,000 batches;
-- a box's bacteria are shared between the batches it feeds in proportion to the mass taken (binomial split of the integer counts by default, or proportional split of the expected numbers with `split_mode <- "expected"`);
-- 1/1000 of each batch's bacteria stays in the mixer and goes into the next batch;
-- each batch is tested once (n = 1, absence in 25 g); the probability of detection is 1 − (b / (μ′ + b))^b (Equation 7), with μ′ the mean count in 25 g and the heterogeneity coefficient b drawn uniformly in [0.5, 2] for each batch.
+- each batch is made of 60% chilled fatty, 30% chilled lean and 10% frozen VPH; boxes are used first in, first out until empty, so a box can feed several successive batches and a batch can take material from two boxes of the same type;
+- each box keeps its own mass (column `mass_g`), which can differ from the batch mass; with 1,000 kg boxes and batches, a fatty box feeds about 1.7 batches, a lean box 3.3 and a frozen box 10;
+- a box's bacteria go to the batches in proportion to the mass taken (binomial split of the integer counts by default, or proportional split of the expected numbers with `split_mode=expected`);
+- after each discharge the mixer keeps a residue of 0.1% of the batch mass, which goes into the next batch with its share of the bacteria;
+- each batch is tested once (n = 1, absence in 25 g); the probability of detection is 1 − (b / (μ′ + b))^b (Equation 7), with μ′ the mean count in 25 g and a heterogeneity coefficient b = 1 by default.
+
+**Mass balance.** The mixer always holds the batch mass plus the residue before it discharges: the first batch takes batch mass + residue of fresh VPH, the following ones the batch mass. Every batch therefore leaves at exactly the batch mass, the residue stays in the mixer at the end, and the unused part of the boxes stays in the boxes. The script checks that mass and bacteria in the boxes equal what is in the batches, in the mixer residue and left in the boxes, writes this balance to `output/balance.csv` and stops if it does not close.
 
 ```sh
-Rscript R/mix_vph_batches.R   # from the repository root; needs dplyr and ggplot2
+Rscript R/mix_vph_batches.R                                 # defaults: 1,000 kg batches, b = 1
+Rscript R/mix_vph_batches.R batch_kg=500 b=1.3              # other batch mass and b
+Rscript R/mix_vph_batches.R b_mode=uniform b_min=0.5 b_max=2   # b drawn per batch
 ```
 
-Outputs: `output/batches.csv` (one row per batch: bacteria, boxes used, b, probability of detection, result; not versioned, about 6 MB), `output/summary.csv` and three figures:
+Run it from the repository root; it needs `dplyr` and `ggplot2`. Parameters (`batch_kg`, `carry_over`, `sample_g`, `b_mode`, `b`, `b_min`, `b_max`, `n_enhanced`, `far_lag`, `n_plot`, `split_mode`, `seed`, `input_file`) can be changed at the top of the script or as `name=value` arguments.
+
+Outputs: `output/batches.csv` (one row per batch: bacteria, mass, bacteria carried in, boxes used with the kg taken from each, b, probability of detection, result; not versioned, about 6 MB), `output/summary.csv`, `output/balance.csv` and three figures:
 
 | Figure | Content |
 |---|---|
@@ -84,7 +91,7 @@ Outputs: `output/batches.csv` (one row per batch: bacteria, boxes used, b, proba
 | [`figures/fig14_detection_probability.png`](figures/fig14_detection_probability.png) | probability of detection of the same batches (Figure 14) |
 | [`figures/fig15_cdf_neighbours.png`](figures/fig15_cdf_neighbours.png) | cumulative distributions of contamination for detected batches, the batches just before and after them, and batches 5 away (Figure 15) |
 
-With the example data, 4.9% of batches are detected (2.7% in the opinion), the mean probability of detecting the neighbouring batches with 30 samples is 72% (66% in the opinion), and the median contamination of detected batches is about 200 times that of batches 5 away (about 100 times in the opinion).
+With the example data and the defaults, the boxes give 49,999 batches of 1,000 kg (the first batch also fills the mixer residue). 4.8% of batches are detected (2.7% in the opinion), the mean probability of detecting the neighbouring batches with 30 samples is 73% (66% in the opinion), and the median contamination of detected batches is about 200 times that of batches 5 away (about 100 times in the opinion).
 
 ## Scope
 
