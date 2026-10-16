@@ -12,8 +12,8 @@ n <- 60
 tailleVPH <- 1E6 # Total mass per unit (g)
 tailleM <- tailleVPH
 # High-shedding period, ANSES opinion 2016-SA-0121:
-meanCf <- 2.44
-sdCf <- 1.98
+meanCf <- 2.43
+sdCf <- 1.82
 PCf <- 0.039
 m_souillures <- 10 # Original formula has mean 11: 1 + Poisson(10)
 Se_spot <- 0.50

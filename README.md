@@ -36,7 +36,7 @@ docs/
 
 ## Data: contamination of VPH boxes
 
-[`data/generate_vph_contamination.R`](data/generate_vph_contamination.R) generates the expected STEC contamination of 1,000 kg VPH boxes using the VPH3 calculation of the opinion, for the high-shedding period (faecal concentration mean 2.44 and sd 1.98 log10 CFU/g, faecal shedding prevalence 3.9%). For each simulated box it:
+[`data/generate_vph_contamination.R`](data/generate_vph_contamination.R) generates the expected STEC contamination of 1,000 kg VPH boxes using the VPH3 calculation of the opinion, for the high-shedding period (faecal concentration mean 2.43 and sd 1.82 log10 CFU/g, faecal shedding prevalence 3.9%). For each simulated box it:
 
 1. draws a reference number of meat pieces per box, by sampling piece masses from a triangular distribution (min 50 g, mode 500 g, max 1,000 g) until 1,000 kg is reached (drawn once per run);
 2. derives the probability that a carcass is contaminated through the hide (transfer from faeces to hide, then hide to carcass) or through evisceration accidents, and draws the number of contaminated carcasses among the 60 animals of the box;
@@ -61,7 +61,7 @@ source("data/generate_vph_contamination.R")
 | `expected_cfu` | Expected number of STEC in the box (decimal) |
 | `cfu` | One Poisson draw around `expected_cfu` (integer count) |
 
-All three types share the same upstream contamination distribution; the type labels only prepare the boxes for the mixing step. In this example the median expected count is about 31 CFU per box, the 90th percentile about 1,700 and the 99th percentile about 105,000, and 4,503 boxes (9%) have an integer count of 0.
+All three types share the same upstream contamination distribution; the type labels only prepare the boxes for the mixing step. In this example the median expected count is about 18 CFU per box, the 90th percentile about 790 and the 99th percentile about 40,000, and 5,399 boxes (11%) have an integer count of 0.
 
 ## Mixing VPH boxes into batches (in development)
 
@@ -91,9 +91,9 @@ Outputs: `output/batches.csv` (one row per batch: bacteria, mass, bacteria carri
 | [`figures/fig14_detection_probability.png`](figures/fig14_detection_probability.png) | probability of detection of the same batches (Figure 14) |
 | [`figures/fig15_cdf_neighbours.png`](figures/fig15_cdf_neighbours.png) | cumulative distributions of contamination for detected batches, the batches just before and after them, and batches 5 away (Figure 15) |
 
-Batches without STEC (0.3% with the defaults) are kept everywhere: in `output/batches.csv` they have `cfu = 0` and a probability of detection of 0. Since log10(0) does not exist, Figures 13 and 15 draw them at a conventional position marked "0 cfu" (−1 on the log10 axis, parameter `zero_at`), as crosses in Figure 13; each curve of Figure 15 therefore starts at the share of its group without STEC.
+Batches without STEC (0.6% with the defaults) are kept everywhere: in `output/batches.csv` they have `cfu = 0` and a probability of detection of 0. Since log10(0) does not exist, Figures 13 and 15 draw them at a conventional position marked "0 cfu" (−1 on the log10 axis, parameter `zero_at`), as crosses in Figure 13; each curve of Figure 15 therefore starts at the share of its group without STEC.
 
-With the example data and the defaults, the boxes give 49,999 batches of 1,000 kg (the first batch also fills the mixer residue). 4.8% of batches are detected (2.7% in the opinion), the mean probability of detecting the neighbouring batches with 30 samples is 73% (66% in the opinion), and the median contamination of detected batches is about 200 times that of batches 5 away (about 100 times in the opinion).
+With the example data and the defaults, the boxes give 49,999 batches of 1,000 kg (the first batch also fills the mixer residue). 2.9% of batches are detected (2.7% in the opinion), the mean probability of detecting the neighbouring batches with 30 samples is 68% (66% in the opinion), and the median contamination of detected batches is about 250 times that of batches 5 away (about 100 times in the opinion).
 
 ## Scope
 
