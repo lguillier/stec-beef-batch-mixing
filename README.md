@@ -15,6 +15,19 @@ Start here to see the principles before reading the code. Both pages are self-co
 
 [`docs/index.html`](docs/index.html) links the two pages in order.
 
+### Rebuilding the explainers
+
+The pages are generated from small JavaScript sources, so the drawings and numbers come from the same model code. With Node.js 20 or later and no other dependency:
+
+```sh
+node figure-vph/build.mjs   # writes docs/vph-box-filling.html
+node figure/build.mjs       # writes docs/batch-mixing.html
+```
+
+- `figure-vph/model.mjs` ports the piece-generation step of `data/generate_vph_contamination.R` (reference piece count, Poisson pieces per carcass, triangular masses, surface ratio, expected bacteria per piece); `live.js` draws and animates the box.
+- `figure/model.mjs` holds the allocation of units to batches (60/30/10, first in first out, 0.1% carry-over) and the contamination levels it implies; `scene.mjs` draws the line.
+- `vendor/anatomy/` is a copy of the isometric drawing kit of the [anatomy](https://github.com/wheresryan22/anatomy) project (MIT licence), used by both builds.
+
 The pages are simplified visualizations. The contaminated-carcass loads, and the two contaminated carcasses per box shown by default in the first page, are demonstration settings; the number of contaminated carcasses per box in the R model comes from its own prevalence equations.
 
 ## Repository structure
@@ -32,6 +45,9 @@ docs/
   index.html                     entry page for the explainers
   vph-box-filling.html           step 1: from 60 carcasses to one VPH box
   batch-mixing.html              step 2: VPH boxes into eight successive batches
+figure-vph/                      sources of docs/vph-box-filling.html
+figure/                          sources of docs/batch-mixing.html (preview/ has screenshots)
+vendor/anatomy/                  isometric drawing kit used by the builds (MIT)
 ```
 
 ## Data: contamination of VPH boxes
@@ -102,6 +118,7 @@ With the example data and the defaults, the boxes give 49,999 batches of 1,000 k
 - **Mixing of VPH boxes into batches**: new script `R/mix_vph_batches.R`, with an exact mass and bacteria balance, box masses read from the data and independent of the batch mass (1,000 kg by default), b = 1 by default, and parameters settable on the command line.
 - **Figures 13 to 15** of the opinion reproduced in `figures/`; batches without STEC are shown at a "0 cfu" position.
 - **VPH data**: `data/generate_vph_contamination.R` now uses a faecal concentration of mean 2.43 and sd 1.82 log10 CFU/g, and `data/vph_contamination.csv` was regenerated accordingly.
+- **Sources of the explainers**: `figure-vph/`, `figure/` and `vendor/anatomy/`, to rebuild the pages in `docs/`.
 - Earlier: interactive explainers in `docs/`, the VPH contamination script and example data in `data/`.
 
 ## Scope

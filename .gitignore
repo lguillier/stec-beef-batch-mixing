@@ -1,1 +1,6 @@
 output/batches.csv
+# local preview pages and screenshots from the figure builds
+figure/batch-mixing.html
+figure/batch-mixing-light.html
+figure/shots/
+figure-vph/shots/
