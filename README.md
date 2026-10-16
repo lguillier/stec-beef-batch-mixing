@@ -150,7 +150,7 @@ Simulation results should be interpreted in light of the assumptions, input dist
 - **Data, figures and documentation** (`data/vph_contamination.csv`, `figures/`, `output/`, the text and figures of `docs/`): [Licence Ouverte / Open Licence 2.0](LICENSE-DATA.md) (Etalab), © Anses. Reuse is free provided the source is mentioned.
 - **Drawing kit** in `vendor/anatomy/`: MIT licence of its author, see [`vendor/anatomy/LICENSE`](vendor/anatomy/LICENSE).
 
-Author: Laurent Guillier (Anses). To cite this repository, use the "Cite this repository" button on GitHub or [`CITATION.cff`](CITATION.cff). The figures reproduce Figures 13 to 15 of Anses opinion 2016-SA-0121 from new simulations; the opinion itself remains an Anses publication.
+Author: Laurent Guillier. To cite this repository, use the "Cite this repository" button on GitHub or [`CITATION.cff`](CITATION.cff). The figures reproduce Figures 13 to 15 of Anses opinion 2016-SA-0121 from new simulations; the opinion itself remains an Anses publication.
 
 ## Reference
 
