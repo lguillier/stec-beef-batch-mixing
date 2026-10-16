@@ -2,7 +2,7 @@
 
 This repository provides R code and data associated with the raw material allocation and batch mixing component of the model described in **ANSES scientific opinion 2016-SA-0121**, together with two interactive pages that explain how raw material boxes (VPH) are made up and how they are mixed into minced beef batches.
 
-In the opinion, **VPH** (*viande pour haché*) refers to beef raw material intended for mincing, and **mêlée** refers to a production batch of minced meat.
+In the opinion, **VPH** (*viande pour haché*) refers to beef raw material intended for mincing (often called trimming box in scientific literature), and **mêlée** refers to a production batch of minced meat.
 
 ## Interactive explainers
 
