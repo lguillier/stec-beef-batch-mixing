@@ -93,7 +93,16 @@ Outputs: `output/batches.csv` (one row per batch: bacteria, mass, bacteria carri
 
 Batches without STEC (0.6% with the defaults) are kept everywhere: in `output/batches.csv` they have `cfu = 0` and a probability of detection of 0. Since log10(0) does not exist, Figures 13 and 15 draw them at a conventional position marked "0 cfu" (−1 on the log10 axis, parameter `zero_at`), as crosses in Figure 13; each curve of Figure 15 therefore starts at the share of its group without STEC.
 
+The example data and the figures use a faecal concentration of mean 2.43 and standard deviation 1.82 log10 CFU/g in `data/generate_vph_contamination.R`, the values used for the original simulations.
+
 With the example data and the defaults, the boxes give 49,999 batches of 1,000 kg (the first batch also fills the mixer residue). 2.9% of batches are detected (2.7% in the opinion), the mean probability of detecting the neighbouring batches with 30 samples is 68% (66% in the opinion), and the median contamination of detected batches is about 250 times that of batches 5 away (about 100 times in the opinion).
+
+## Changes
+
+- **Mixing of VPH boxes into batches**: new script `R/mix_vph_batches.R`, with an exact mass and bacteria balance, box masses read from the data and independent of the batch mass (1,000 kg by default), b = 1 by default, and parameters settable on the command line.
+- **Figures 13 to 15** of the opinion reproduced in `figures/`; batches without STEC are shown at a "0 cfu" position.
+- **VPH data**: `data/generate_vph_contamination.R` now uses a faecal concentration of mean 2.43 and sd 1.82 log10 CFU/g, and `data/vph_contamination.csv` was regenerated accordingly.
+- Earlier: interactive explainers in `docs/`, the VPH contamination script and example data in `data/`.
 
 ## Scope
 
