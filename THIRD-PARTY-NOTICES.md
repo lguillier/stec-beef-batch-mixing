@@ -1,3 +1,10 @@
+# Third-party notices
+
+The two pages in `docs/` (`vph-box-filling.html` and `batch-mixing.html`) embed the isometric
+drawing kit (`iso-kit`) of the anatomy project, https://github.com/wheresryan22/anatomy, which
+is distributed under the following licence.
+
+```
 MIT License
 
 Copyright (c) 2026 Ryan
@@ -19,3 +26,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+```
