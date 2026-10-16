@@ -34,6 +34,9 @@ The pages are simplified visualizations. The contaminated-carcass loads, and the
 
 ```
 README.md
+LICENSE                          MIT licence for the code
+LICENSE-DATA.md                  Licence Ouverte 2.0 for data, figures and documentation
+CITATION.cff                     how to cite the repository
 data/
   generate_vph_contamination.R   R script generating the contamination of VPH boxes
   vph_contamination.csv          example output (50,000 boxes)
@@ -119,6 +122,7 @@ With the example data and the defaults, the boxes give 49,999 batches of 1,000 k
 - **Figures 13 to 15** of the opinion reproduced in `figures/`; batches without STEC are shown at a "0 cfu" position.
 - **VPH data**: `data/generate_vph_contamination.R` now uses a faecal concentration of mean 2.43 and sd 1.82 log10 CFU/g, and `data/vph_contamination.csv` was regenerated accordingly.
 - **Sources of the explainers**: `figure-vph/`, `figure/` and `vendor/anatomy/`, to rebuild the pages in `docs/`.
+- **Licences**: MIT for the code, Licence Ouverte 2.0 for data, figures and documentation, and a `CITATION.cff` file.
 - Earlier: interactive explainers in `docs/`, the VPH contamination script and example data in `data/`.
 
 ## Scope
@@ -139,6 +143,14 @@ The approach is described in Section 3.4.2 of ANSES scientific opinion **2016-SA
 ## Interpretation
 
 Simulation results should be interpreted in light of the assumptions, input distributions and production scenarios described in the opinion. They represent modelled contamination patterns rather than direct observations of individual production batches.
+
+## License
+
+- **Code** (R scripts in `R/` and `data/`, JavaScript sources in `figure/` and `figure-vph/`): [MIT licence](LICENSE), © Anses.
+- **Data, figures and documentation** (`data/vph_contamination.csv`, `figures/`, `output/`, the text and figures of `docs/`): [Licence Ouverte / Open Licence 2.0](LICENSE-DATA.md) (Etalab), © Anses. Reuse is free provided the source is mentioned.
+- **Drawing kit** in `vendor/anatomy/`: MIT licence of its author, see [`vendor/anatomy/LICENSE`](vendor/anatomy/LICENSE).
+
+Author: Laurent Guillier (Anses). To cite this repository, use the "Cite this repository" button on GitHub or [`CITATION.cff`](CITATION.cff). The figures reproduce Figures 13 to 15 of Anses opinion 2016-SA-0121 from new simulations; the opinion itself remains an Anses publication.
 
 ## Reference
 

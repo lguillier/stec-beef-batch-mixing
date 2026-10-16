@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use this code or data, please cite it as below."
+title: "stec-beef-batch-mixing: STEC contamination of raw material units and minced beef batches"
+abstract: >-
+  R code, example data and interactive explainers for the raw material (VPH) contamination
+  and batch mixing component of the model described in Anses scientific opinion 2016-SA-0121.
+authors:
+  - family-names: Guillier
+    given-names: Laurent
+    affiliation: "Anses"
+license: MIT
+repository-code: "https://github.com/lguillier/stec-beef-batch-mixing"
+date-released: 2026-10-16
+keywords:
+  - STEC
+  - EHEC
+  - minced beef
+  - quantitative microbial risk assessment
+  - sampling
+references:
+  - type: report
+    title: "Avis de l'Anses relatif à la détection des E. coli producteurs de shigatoxines (STEC) considérés comme hautement pathogènes en filière viande hachée bovine"
+    authors:
+      - name: "Anses"
+    institution:
+      name: "Anses"
+    number: "2016-SA-0121"
+    year: 2017
+    date-published: 2017-05-18
+    url: "https://www.anses.fr/system/files/BIORISK2016SA0121.pdf"
