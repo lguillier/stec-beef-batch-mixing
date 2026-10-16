@@ -79,7 +79,7 @@ source("data/generate_vph_contamination.R")
 
 All three types share the same upstream contamination distribution; the type labels only prepare the boxes for the mixing step. In this example the median expected count is about 18 CFU per box, the 90th percentile about 790 and the 99th percentile about 40,000, and 5,399 boxes (11%) have an integer count of 0.
 
-## Mixing VPH boxes into batches (in development)
+## Mixing VPH boxes into batches
 
 [`R/mix_vph_batches.R`](R/mix_vph_batches.R) mixes the boxes of `data/vph_contamination.csv` into minced beef batches following the scenario of Section 3.4.6 (Figure 12) and reproduces Figures 13 to 15 of the opinion:
 
