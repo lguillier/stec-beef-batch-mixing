@@ -37,6 +37,10 @@ README.md
 data/
   generate_vph_contamination.R   R script generating the contamination of VPH boxes
   vph_contamination.csv          example output (50,000 boxes)
+R/
+  mix_vph_batches.R              mixing of VPH boxes into batches, Figures 13 to 15
+figures/                         figures produced by R/mix_vph_batches.R
+output/                          summary.csv, balance.csv (batches.csv is regenerated, not versioned)
 docs/
   index.html                     entry page for the explainers
   vph-box-filling.html           step 1: from 60 carcasses to one VPH box
@@ -48,7 +52,7 @@ vendor/anatomy/                  isometric drawing kit used by the builds (MIT)
 
 ## Data: contamination of VPH boxes
 
-[`data/generate_vph_contamination.R`](data/generate_vph_contamination.R) generates the expected STEC contamination of 1,000 kg VPH boxes using the VPH3 calculation of the opinion, for the high-shedding period (faecal concentration mean 2.44 and sd 1.98 log10 CFU/g, faecal shedding prevalence 3.9%). For each simulated box it:
+[`data/generate_vph_contamination.R`](data/generate_vph_contamination.R) generates the expected STEC contamination of 1,000 kg VPH boxes using the VPH3 calculation of the opinion, for the high-shedding period (faecal concentration mean 2.43 and sd 1.82 log10 CFU/g, faecal shedding prevalence 3.9%). For each simulated box it:
 
 1. draws a reference number of meat pieces per box, by sampling piece masses from a triangular distribution (min 50 g, mode 500 g, max 1,000 g) until 1,000 kg is reached (drawn once per run);
 2. derives the probability that a carcass is contaminated through the hide (transfer from faeces to hide, then hide to carcass) or through evisceration accidents, and draws the number of contaminated carcasses among the 60 animals of the box;
@@ -73,7 +77,49 @@ source("data/generate_vph_contamination.R")
 | `expected_cfu` | Expected number of STEC in the box (decimal) |
 | `cfu` | One Poisson draw around `expected_cfu` (integer count) |
 
-All three types share the same upstream contamination distribution; the type labels only prepare the boxes for the mixing step. In this example the median expected count is about 31 CFU per box, the 90th percentile about 1,700 and the 99th percentile about 105,000, and 4,503 boxes (9%) have an integer count of 0.
+All three types share the same upstream contamination distribution; the type labels only prepare the boxes for the mixing step. In this example the median expected count is about 18 CFU per box, the 90th percentile about 790 and the 99th percentile about 40,000, and 5,399 boxes (11%) have an integer count of 0.
+
+## Mixing VPH boxes into batches (in development)
+
+[`R/mix_vph_batches.R`](R/mix_vph_batches.R) mixes the boxes of `data/vph_contamination.csv` into minced beef batches following the scenario of Section 3.4.6 (Figure 12) and reproduces Figures 13 to 15 of the opinion:
+
+- each batch is made of 60% chilled fatty, 30% chilled lean and 10% frozen VPH; boxes are used first in, first out until empty, so a box can feed several successive batches and a batch can take material from two boxes of the same type;
+- each box keeps its own mass (column `mass_g`), which can differ from the batch mass; with 1,000 kg boxes and batches, a fatty box feeds about 1.7 batches, a lean box 3.3 and a frozen box 10;
+- a box's bacteria go to the batches in proportion to the mass taken (binomial split of the integer counts by default, or proportional split of the expected numbers with `split_mode=expected`);
+- after each discharge the mixer keeps a residue of 0.1% of the batch mass, which goes into the next batch with its share of the bacteria;
+- each batch is tested once (n = 1, absence in 25 g); the probability of detection is 1 − (b / (μ′ + b))^b (Equation 7), with μ′ the mean count in 25 g and a heterogeneity coefficient b = 1 by default.
+
+**Mass balance.** The mixer always holds the batch mass plus the residue before it discharges: the first batch takes batch mass + residue of fresh VPH, the following ones the batch mass. Every batch therefore leaves at exactly the batch mass, the residue stays in the mixer at the end, and the unused part of the boxes stays in the boxes. The script checks that mass and bacteria in the boxes equal what is in the batches, in the mixer residue and left in the boxes, writes this balance to `output/balance.csv` and stops if it does not close.
+
+```sh
+Rscript R/mix_vph_batches.R                                 # defaults: 1,000 kg batches, b = 1
+Rscript R/mix_vph_batches.R batch_kg=500 b=2                # other batch mass and b (example only)
+Rscript R/mix_vph_batches.R b_mode=uniform b_min=0.5 b_max=2   # b drawn per batch
+```
+
+Run it from the repository root; it needs `dplyr` and `ggplot2`. Parameters (`batch_kg`, `carry_over`, `sample_g`, `b_mode`, `b`, `b_min`, `b_max`, `n_enhanced`, `far_lag`, `n_plot`, `zero_at`, `split_mode`, `seed`, `input_file`) can be changed at the top of the script or as `name=value` arguments.
+
+Outputs: `output/batches.csv` (one row per batch: bacteria, mass, bacteria carried in, boxes used with the kg taken from each, b, probability of detection, result; not versioned, about 6 MB), `output/summary.csv`, `output/balance.csv` and three figures:
+
+| Figure | Content |
+|---|---|
+| [`figures/fig13_batch_contamination.png`](figures/fig13_batch_contamination.png) | log10 bacteria in the first 150 batches, red when detected (Figure 13 of the opinion) |
+| [`figures/fig14_detection_probability.png`](figures/fig14_detection_probability.png) | probability of detection of the same batches (Figure 14) |
+| [`figures/fig15_cdf_neighbours.png`](figures/fig15_cdf_neighbours.png) | cumulative distributions of contamination for detected batches, the batches just before and after them, and batches 5 away (Figure 15) |
+
+Batches without STEC (0.6% with the defaults) are kept everywhere: in `output/batches.csv` they have `cfu = 0` and a probability of detection of 0. Since log10(0) does not exist, Figures 13 and 15 draw them at a conventional position marked "0 cfu" (−1 on the log10 axis, parameter `zero_at`), as crosses in Figure 13; each curve of Figure 15 therefore starts at the share of its group without STEC.
+
+The example data and the figures use a faecal concentration of mean 2.43 and standard deviation 1.82 log10 CFU/g in `data/generate_vph_contamination.R`, the values used for the original simulations.
+
+With the example data and the defaults, the boxes give 49,999 batches of 1,000 kg (the first batch also fills the mixer residue). 2.9% of batches are detected (2.7% in the opinion), the mean probability of detecting the neighbouring batches with 30 samples is 68% (66% in the opinion), and the median contamination of detected batches is about 250 times that of batches 5 away (about 100 times in the opinion).
+
+## Changes
+
+- **Mixing of VPH boxes into batches**: new script `R/mix_vph_batches.R`, with an exact mass and bacteria balance, box masses read from the data and independent of the batch mass (1,000 kg by default), b = 1 by default, and parameters settable on the command line.
+- **Figures 13 to 15** of the opinion reproduced in `figures/`; batches without STEC are shown at a "0 cfu" position.
+- **VPH data**: `data/generate_vph_contamination.R` now uses a faecal concentration of mean 2.43 and sd 1.82 log10 CFU/g, and `data/vph_contamination.csv` was regenerated accordingly.
+- **Sources of the explainers**: `figure-vph/`, `figure/` and `vendor/anatomy/`, to rebuild the pages in `docs/`.
+- Earlier: interactive explainers in `docs/`, the VPH contamination script and example data in `data/`.
 
 ## Scope
 
@@ -84,7 +130,7 @@ The code focuses on:
 - Formation of batches by combining several raw material units.
 - Resulting contamination patterns across production batches.
 
-This repository covers this component of the model rather than the complete quantitative microbial risk assessment described in the opinion. The data script does not include mixing, sampling, carry-over or risk assessment.
+This repository covers this component of the model rather than the complete quantitative microbial risk assessment described in the opinion. The data script does not include mixing, sampling or carry-over; these are in `R/mix_vph_batches.R`. Risk assessment is not covered.
 
 ## Scientific background
 
