@@ -43,6 +43,7 @@ params <- list(
   n_enhanced = 30,                                 # samples on neighbouring batches
   far_lag    = 5,                                  # "distant" batches: at least 5 away
   n_plot     = 150,                                # batches shown in Figures 13 and 14
+  zero_at    = -1,                                 # log10 axis position of batches with 0 cfu
   # "binomial": integer counts (column cfu) are split by binomial thinning, so every
   # batch receives whole bacteria; "expected": expected numbers (column expected_cfu)
   # are split in proportion to mass.
@@ -240,14 +241,31 @@ first <- batches %>%
   slice_head(n = params$n_plot) %>%
   mutate(detection = factor(ifelse(detected, "D", "ND"), levels = c("D", "ND")))
 colours <- c(D = "#F8766D", ND = "#00BFC4")
+# log10(0) does not exist: batches without STEC are drawn at zero_at, labelled "0 cfu".
+zero_at <- params$zero_at
+log_or_zero <- function(cfu) ifelse(cfu > 0, log10(cfu), zero_at)
+log_breaks <- function(lims) {
+  top <- ceiling(max(lims, na.rm = TRUE))
+  steps <- if (top > 5) seq(0, top, 2) else seq(0, top, 1)
+  c(zero_at, steps[steps > zero_at + 0.5])
+}
+log_labels <- function(br) ifelse(br == zero_at, "0 cfu", format(br))
 
-fig13 <- ggplot(filter(first, cfu > 0), aes(batch, log10_cfu, colour = detection)) +
+first <- mutate(first, y = log_or_zero(cfu),
+                content = factor(ifelse(cfu > 0, "STEC present", "0 cfu"), levels = c("STEC present", "0 cfu")))
+n_zero_first <- sum(first$cfu == 0)
+fig13 <- ggplot(first, aes(batch, y, colour = detection, shape = content)) +
+  geom_hline(yintercept = zero_at, colour = "grey60", linewidth = 0.3, linetype = "dotted") +
   geom_point(size = 1.6) +
   scale_colour_manual(values = colours, drop = FALSE) +
-  labs(x = "Batch order", y = "log10(cfu/batch)", colour = "detection",
+  scale_shape_manual(values = c("STEC present" = 16, "0 cfu" = 4), drop = FALSE) +
+  scale_y_continuous(breaks = log_breaks, labels = log_labels,
+                     limits = c(zero_at - 0.2, NA)) +
+  labs(x = "Batch order", y = "log10(cfu/batch)", colour = "detection", shape = NULL,
        title = sprintf("Contamination of %d successive %g kg batches", params$n_plot, batch_kg),
-       caption = "Red: EHEC detected by systematic sampling of batches (n = 1, m = 25 g).") +
-  theme_gray(base_size = 12)
+       caption = sprintf("Red: EHEC detected by systematic sampling of batches (n = 1, m = 25 g).\nCrosses at \"0 cfu\": batches without STEC (%d here).",
+                         n_zero_first)) +
+  theme_gray(base_size = 12) + theme(plot.caption = element_text(hjust = 0))
 ggsave("figures/fig13_batch_contamination.png", fig13, width = 7, height = 4.5, dpi = 150)
 
 fig14 <- ggplot(first, aes(batch, p_detect, colour = detection)) +
@@ -256,20 +274,27 @@ fig14 <- ggplot(first, aes(batch, p_detect, colour = detection)) +
   labs(x = "Batch order", y = "Probability of detection", colour = "detection",
        title = sprintf("Probability of detection of %d successive %g kg batches", params$n_plot, batch_kg),
        caption = sprintf("n = 1, m = 25 g, Gamma-Poisson distribution, %s.", b_label)) +
-  theme_gray(base_size = 12)
+  theme_gray(base_size = 12) + theme(plot.caption = element_text(hjust = 0))
 ggsave("figures/fig14_detection_probability.png", fig14, width = 7, height = 4.5, dpi = 150)
 
 group_levels <- c("Detected batches", "Batch just before (m-1)", "Batch just after (m+1)",
                   "Distant, before (m-5)", "Distant, after (m+5)")
-fig15 <- ggplot(filter(groups, cfu > 0),
-                aes(log10_cfu, colour = factor(group, group_levels),
+zero_share <- groups %>% group_by(group) %>% summarise(z = mean(cfu == 0), .groups = "drop")
+fig15 <- ggplot(mutate(groups, x = log_or_zero(cfu)),
+                aes(x, colour = factor(group, group_levels),
                     linetype = factor(group, group_levels))) +
   stat_ecdf(linewidth = 0.7) +
   scale_colour_manual(values = c("red", "orange", "orange", "black", "black")) +
   scale_linetype_manual(values = c("solid", "dashed", "solid", "dashed", "solid")) +
+  geom_vline(xintercept = zero_at, colour = "grey60", linewidth = 0.3, linetype = "dotted") +
+  scale_x_continuous(breaks = log_breaks, labels = log_labels) +
   labs(x = "log10(cfu) per batch", y = "CDF", colour = NULL, linetype = NULL,
-       title = "Contamination of detected batches and of their neighbours") +
-  theme_gray(base_size = 12) +
+       title = "Contamination of detected batches and of their neighbours",
+       caption = sprintf("Batches without STEC are counted at \"0 cfu\", so each curve starts at their share:\n%s.",
+                         paste(sprintf("%s %.2f%%", c("m-1", "m+1", "m-5", "m+5"),
+                                       100 * zero_share$z[match(group_levels[-1], zero_share$group)]),
+                               collapse = ", "))) +
+  theme_gray(base_size = 12) + theme(plot.caption = element_text(hjust = 0)) +
   theme(legend.position = "bottom") +
   guides(colour = guide_legend(nrow = 2))
 ggsave("figures/fig15_cdf_neighbours.png", fig15, width = 7, height = 5, dpi = 150)

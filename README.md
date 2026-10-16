@@ -81,7 +81,7 @@ Rscript R/mix_vph_batches.R batch_kg=500 b=2                # other batch mass a
 Rscript R/mix_vph_batches.R b_mode=uniform b_min=0.5 b_max=2   # b drawn per batch
 ```
 
-Run it from the repository root; it needs `dplyr` and `ggplot2`. Parameters (`batch_kg`, `carry_over`, `sample_g`, `b_mode`, `b`, `b_min`, `b_max`, `n_enhanced`, `far_lag`, `n_plot`, `split_mode`, `seed`, `input_file`) can be changed at the top of the script or as `name=value` arguments.
+Run it from the repository root; it needs `dplyr` and `ggplot2`. Parameters (`batch_kg`, `carry_over`, `sample_g`, `b_mode`, `b`, `b_min`, `b_max`, `n_enhanced`, `far_lag`, `n_plot`, `zero_at`, `split_mode`, `seed`, `input_file`) can be changed at the top of the script or as `name=value` arguments.
 
 Outputs: `output/batches.csv` (one row per batch: bacteria, mass, bacteria carried in, boxes used with the kg taken from each, b, probability of detection, result; not versioned, about 6 MB), `output/summary.csv`, `output/balance.csv` and three figures:
 
@@ -90,6 +90,8 @@ Outputs: `output/batches.csv` (one row per batch: bacteria, mass, bacteria carri
 | [`figures/fig13_batch_contamination.png`](figures/fig13_batch_contamination.png) | log10 bacteria in the first 150 batches, red when detected (Figure 13 of the opinion) |
 | [`figures/fig14_detection_probability.png`](figures/fig14_detection_probability.png) | probability of detection of the same batches (Figure 14) |
 | [`figures/fig15_cdf_neighbours.png`](figures/fig15_cdf_neighbours.png) | cumulative distributions of contamination for detected batches, the batches just before and after them, and batches 5 away (Figure 15) |
+
+Batches without STEC (0.3% with the defaults) are kept everywhere: in `output/batches.csv` they have `cfu = 0` and a probability of detection of 0. Since log10(0) does not exist, Figures 13 and 15 draw them at a conventional position marked "0 cfu" (−1 on the log10 axis, parameter `zero_at`), as crosses in Figure 13; each curve of Figure 15 therefore starts at the share of its group without STEC.
 
 With the example data and the defaults, the boxes give 49,999 batches of 1,000 kg (the first batch also fills the mixer residue). 4.8% of batches are detected (2.7% in the opinion), the mean probability of detecting the neighbouring batches with 30 samples is 73% (66% in the opinion), and the median contamination of detected batches is about 200 times that of batches 5 away (about 100 times in the opinion).
 
